@@ -1,0 +1,75 @@
+﻿@model IEnumerable<Sample_Application.Models.Customer>
+
+<script src="~/Scripts/jquery-3.4.1.min.js"></script>
+<script src="~/Scripts/jquery.unobtrusive-ajax.min.js"></script>
+<script>
+    $(document).ready(function () {
+        var tableBody = $("#data-table tbody");
+
+        $.ajax({
+            url: 'https://localhost:44334/Values/details', // Replace with the actual URL of your Web API
+            type: 'GET',
+            success: function (result) {
+                display(result);
+            },
+            error: function (error) {
+                $('#resultMessage').text('Error fetching data.');
+            }
+        });
+
+        function display(customers) {
+            $.each(customers, function (index, data) {
+                var row = $("<tr>");
+                row.append("<td>" + data.ID + "</td>");
+                row.append("<td>" + data.First_Name + "</td>");
+                row.append("<td>" + data.Last_Name + "</td>");
+                row.append("<td>" + data.Email_ID + "</td>");
+                var imageCell = $("<td>").appendTo(row);
+                // Fetch and display the image
+                display_image(data.ID, imageCell);
+                row.append("<td><a href='/Customer/Edit/" + data.ID + "'>Edit</a></td>");
+                row.append("<td><a href='/Customer/Delete/" + data.ID + "'>Delete</a></td>");
+
+                tableBody.append(row);
+            });
+        }
+
+        function display_image(id, imageCell) {
+            $.ajax({
+                url: 'https://localhost:44334/Values/api/getimage?id=' + id,
+                type: 'GET',
+                success: function (data) {
+                    if (data.imageData) {
+                        // Create an image element with the base64 data and append it to the cell
+                        var img = $('<img>').attr('src', 'data:image/jpeg;base64,' + data.imageData).css('max-width', '100px'); // Set max-width to fit the table cell
+                        imageCell.append(img);
+                    }
+                },
+                error: function (error) {
+                    console.error('Error:', error);
+                }
+            });
+        }
+    });
+</script>
+
+<h1 style="text-align: center;">Customer Details</h1>
+
+<body>
+    <table class="table" id="data-table">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>First Name</th>
+                <th>Last Name</th>
+                <th>Email</th>
+                <th>Image</th>
+                <th>Edit</th>
+                <th>Delete</th>
+            </tr>
+        </thead>
+        <tbody>
+            <!-- Table rows will be added here -->
+        </tbody>
+    </table>
+</body>

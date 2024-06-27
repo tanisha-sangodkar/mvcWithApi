@@ -1,0 +1,132 @@
+﻿@model Sample_Application.Models.Customer
+
+
+<script src="~/Scripts/jquery-3.4.1.min.js"></script>
+<script src="~/Scripts/jquery.unobtrusive-ajax.min.js"></script>
+<script>
+    $(document).ready(function () {
+        $('#submit_form').click(function (event) {
+            //event.preventDefault();
+            console.log("reached bfre form")
+            var formData = {
+                First_Name: $('#First_Name').val(),
+                Last_Name: $('#Last_Name').val(),
+                Email_ID: $('#Email_ID').val(),
+                Password: $('#Password').val()
+            };
+            console.log(JSON.stringify(formData));
+            //formData = formData.serialize();
+            //var formData = new FormData(this);
+
+
+            console.log("reached")
+
+            $.ajax({
+                url: 'https://localhost:44334/Values/create', // Replace with the actual URL of your Web API
+                type: 'POST',
+                data: JSON.stringify(formData),
+                dataType: "json",
+                //processData: false, // Prevent jQuery from automatically processing the data
+                contentType: 'application/json', // Let the browser set the content type
+                // enctype: 'multipart/form-data',
+                success: function (response) {
+                    console.log(response)
+                    if (response != -1) {
+                        Image_Upload(response)
+                    }
+                    //window.location.href = "";
+
+                },
+                error: function (error) {
+                    $('#resultMessage').text('Error inserting data.');
+                }
+            })
+
+        });
+
+        function Image_Upload(Customer_id) {
+            var input = $('#imageInput')[0];
+            var file = input.files[0];
+
+            console.log("file:", file)
+
+            console.log("customer id:", Customer_id)
+            var formData = new FormData();
+            formData.append('image', file);
+            formData.append('id', Customer_id);
+
+
+            $.ajax({
+                url: 'https://localhost:44334/Values/uploadimage',
+                type: 'POST',
+                data: formData,
+                processData: false,
+                contentType: false,
+                success: function (data) {
+                    $('#message').text(data.message);
+                    window.location.href = 'https://localhost:44370/Customer/Login'
+                },
+                error: function (error) {
+                    console.error('Error:', error);
+                }
+            });
+
+        }
+    });
+</script>
+
+@using (Html.BeginForm(null, null, FormMethod.Post, new { id = "dataForm", @enctype = "multipart/form-data" }))
+{
+
+    <h1 style="text-align: center;">Sign up</h1>
+    <br />
+    <table align="center">
+        <tr>
+            <td>
+                @Html.Label("First Name:")
+            </td>
+            <td style="padding: 5px;">
+                @Html.TextBoxFor(m => m.First_Name)
+            </td>
+            <td>@Html.ValidationMessageFor(m => m.First_Name, "", new { @class = "text-danger" }) <br /></td>
+
+        </tr>
+        <tr>
+            <td>
+                @Html.Label("Last Name:")
+            </td>
+            <td style="padding: 5px;">
+                @Html.TextBoxFor(m => m.Last_Name)
+            </td>
+            <td>@Html.ValidationMessageFor(m => m.Last_Name, "", new { @class = "text-danger" })<br /> </td>
+        </tr>
+
+        <tr>
+            <td>
+                @Html.Label("Email ID:")
+            </td>
+            <td style="padding: 5px;">
+                @Html.TextBoxFor(m => m.Email_ID)
+            </td>
+            <td>@Html.ValidationMessageFor(m => m.Email_ID, "", new { @class = "text-danger" })<br /> </td>
+        </tr>
+
+        <tr>
+            <td>
+                @Html.Label("Password:")
+            </td>
+            <td style="padding: 5px;">
+                @Html.PasswordFor(m => m.Password)
+            </td>
+            <td>@Html.ValidationMessageFor(m => m.Password, "", new { @class = "text-danger" })<br /> </td>
+        </tr>
+    </table>
+
+}
+<div style="text-align: center;margin-left: 12%">
+    @Html.Label("Upload Image:")
+    <input type="file" id="imageInput" style="padding: 15px;" />
+    <br />
+
+</div>
+<input type="submit" id="submit_form" value="Sign up" style="background-color: #0492C2; margin-left: 35%; color: white; padding: 10px 20px; border: none; border-radius: 5px; cursor: pointer; width: 80%; " />

@@ -1,0 +1,90 @@
+﻿@model Sample_Application.Models.Customer
+
+<script src="~/Scripts/jquery-3.4.1.min.js"></script>
+<script src="~/Scripts/jquery.unobtrusive-ajax.min.js"></script>
+<script>
+    $(document).ready(function () {
+        $('#Login').click(function (event) {
+            event.preventDefault(); // Prevent the default form submission
+
+            var email = $('#Email_ID').val(); // Assuming your input field id for email is 'Email_ID'
+            var password = $('#Password').val(); // Assuming your input field id for password is 'Password'
+
+            $.ajax({
+                url: 'https://localhost:44334/Values/api/logincustomer?Emailid='+email+'&password='+password,
+                type: 'POST',
+                //contentType: 'application/json',
+                data: {
+                    Emailid: email,
+                    password: password
+                },
+                success: function (response) {
+                    // Assuming successful login redirects to DisplayDetails page
+                    window.location.href = "https://localhost:44370/Customer/DisplayDetails";
+                },
+                error: function (error) {
+                    console.error('Error:', error);
+                }
+            });
+        });
+    });
+</script>
+@using (Html.BeginForm(null, null, FormMethod.Post, new { id = "dataForm" }))
+{
+    @Html.AntiForgeryToken()
+    <h1 style="text-align: center;">Login</h1><br />
+    <table align="center">
+        <tr>
+            <td>@Html.Label("Email ID:")</td>
+        </tr>
+        <tr>
+            <td> @Html.TextBoxFor(m => m.Email_ID, new { @style = "width:250px;" })</td>
+        </tr>
+        <tr>
+
+            <td>
+                @Html.ValidationMessageFor(model => model.Email_ID, "", new { @class = "text-danger" })
+                <span id="emailErrorMessage" class="text-danger"></span><br />
+            </td>
+        </tr>
+
+        <tr>
+            <td>
+                @Html.Label("Password:")
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <abbr title="expects uppercase,lowercase,digits,special characters">
+                    @Html.PasswordFor(m => m.Password, new { @style = "width:250px;" })
+                </abbr>
+            </td>
+        </tr>
+        <tr>
+            <td>
+                @Html.ValidationMessageFor(model => model.Password, "", new { @class = "text-danger" })
+                <span id="passwordErrorMessage" class="text-danger"></span><br />
+
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <input type="checkbox" name="remember" />
+                <label>
+                    Remember me
+                </label>&nbsp;
+                <a href="#">Forgot password</a>
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <input type="submit" id="Login" value="Login" style="width: 100%; background-color: #0492C2;color: white; padding: 10px 20px; border: none; border-radius: 5px; cursor: pointer; " />
+                <br />
+                <span style="color:red"> @ViewBag.message</span>
+            </td>
+        </tr>
+    </table>
+
+
+}
+
